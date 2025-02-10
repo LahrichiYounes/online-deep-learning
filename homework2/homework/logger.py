@@ -32,10 +32,7 @@ def test_logging(logger: tb.SummaryWriter):
             # TODO: log train_loss
             # TODO: save additional metrics to be averaged
             logger.add_scalar('train_loss', dummy_train_loss, global_step)
-            
-            # Collect accuracies for averaging
             metrics["train_acc"].append(dummy_train_accuracy.mean().item())
-
             global_step += 1
 
         # TODO: log average train_accuracy
