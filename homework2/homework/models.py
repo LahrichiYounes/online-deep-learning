@@ -158,18 +158,11 @@ class MLPClassifierDeep(nn.Module):
         """
         batch_size = x.shape[0]
         x_flat = x.view(batch_size, -1)
-
-        residual = x_flat
-        for i, layer in enumerate(self.layers):
-            x_flat = F.relu(layer(x_flat))
-            if i > 0:
-                x_flat += residual
-            residual = x_flat
-        logits = self.output_layer(x_flat)
-        return logits
+        return self.layers(x_flat)
         # raise NotImplementedError("MLPClassifierDeep.forward() is not implemented")
 
 
+# I used AI for this function
 class MLPClassifierDeepResidual(nn.Module):
     def __init__(
         self,
@@ -188,7 +181,24 @@ class MLPClassifierDeepResidual(nn.Module):
             hidden_dim: int, size of hidden layers
             num_layers: int, number of hidden layers
         """
-        raise NotImplementedError("MLPClassifierDeepResidual.__init__() is not implemented")
+        super().__init__()
+        input_features = 3 * h * w
+        hidden_dim = 128
+        
+        self.input_layer = nn.Linear(input_features, hidden_dim)
+        
+        self.hidden_layers = nn.ModuleList([
+            nn.Sequential(
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.ReLU(),
+                nn.Linear(hidden_dim, hidden_dim)
+            ) for _ in range(num_layers - 1)
+        ])
+        
+        self.relu = nn.ReLU()
+        
+        self.output_layer = nn.Linear(hidden_dim, num_classes)
+        # raise NotImplementedError("MLPClassifierDeepResidual.__init__() is not implemented")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -198,7 +208,20 @@ class MLPClassifierDeepResidual(nn.Module):
         Returns:
             tensor (b, num_classes) logits
         """
-        raise NotImplementedError("MLPClassifierDeepResidual.forward() is not implemented")
+        batch_size = x.shape[0]
+        x = x.view(batch_size, -1)
+        x = self.relu(self.input_layer(x))
+        
+        for layer in self.hidden_layers:
+            identity = x
+            x = layer(x)
+            x = x + identity  # Residual connection
+            x = self.relu(x)
+            
+        x = self.output_layer(x)
+        
+        return x
+        # raise NotImplementedError("MLPClassifierDeepResidual.forward() is not implemented")
 
 
 model_factory = {
