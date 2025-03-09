@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from homework.models import Classifier
 from homework.datasets.classification_dataset import load_data
 
-def train(train_path, val_path, num_epochs=10, learning_rate=0.001, batch_size=64):
+def train(num_epochs=10, learning_rate=0.001, batch_size=64):
     # Initialize model
     model = Classifier()
     
@@ -17,19 +17,8 @@ def train(train_path, val_path, num_epochs=10, learning_rate=0.001, batch_size=6
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=3, factor=0.5)
     
     # Load data (with augmentation for training)
-    train_loader = load_data(
-        train_path, 
-        transform_pipeline="aug",  # Use augmented data for training
-        batch_size=batch_size, 
-        shuffle=True
-    )
-    
-    val_loader = load_data(
-        val_path, 
-        transform_pipeline="default",  # No augmentation for validation
-        batch_size=batch_size, 
-        shuffle=False
-    )
+    train_data = load_data("classification_data/train", shuffle=True, batch_size=batch_size, num_workers=2)
+    val_data = load_data("classification_data/val", shuffle=False)
     
     # Check if GPU is available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -45,7 +34,7 @@ def train(train_path, val_path, num_epochs=10, learning_rate=0.001, batch_size=6
         correct = 0
         total = 0
         
-        for images, labels in train_loader:
+        for images, labels in train_data:
             images, labels = images.to(device), labels.to(device)
             
             # Zero the parameter gradients
@@ -65,7 +54,7 @@ def train(train_path, val_path, num_epochs=10, learning_rate=0.001, batch_size=6
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
         
-        epoch_loss = running_loss / len(train_loader.dataset)
+        epoch_loss = running_loss / len(train_data.dataset)
         epoch_acc = correct / total
         
         # Validation phase
@@ -75,7 +64,7 @@ def train(train_path, val_path, num_epochs=10, learning_rate=0.001, batch_size=6
         val_total = 0
         
         with torch.inference_mode():
-            for images, labels in val_loader:
+            for images, labels in val_data:
                 images, labels = images.to(device), labels.to(device)
                 
                 # Forward pass
@@ -88,7 +77,7 @@ def train(train_path, val_path, num_epochs=10, learning_rate=0.001, batch_size=6
                 val_total += labels.size(0)
                 val_correct += (predicted == labels).sum().item()
         
-        val_epoch_loss = val_loss / len(val_loader.dataset)
+        val_epoch_loss = val_loss / len(val_data.dataset)
         val_epoch_acc = val_correct / val_total
         
         # Update learning rate
