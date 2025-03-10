@@ -26,9 +26,7 @@ class Classifier(nn.Module):
         self.register_buffer("input_mean", torch.as_tensor(INPUT_MEAN))
         self.register_buffer("input_std", torch.as_tensor(INPUT_STD))
 
-        # Define the CNN architecture
         self.features = nn.Sequential(
-            # First convolutional block
             nn.Conv2d(in_channels, 32, kernel_size=3, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
@@ -37,7 +35,6 @@ class Classifier(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
             
-            # Second convolutional block
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
@@ -46,7 +43,6 @@ class Classifier(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
             
-            # Third convolutional block
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
             nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
@@ -56,13 +52,11 @@ class Classifier(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
         
-        # Calculating the output size after all the convolutional layers
-        # Input is 64x64, after 3 max pooling layers (stride=2), it's 8x8
         self.classifier = nn.Sequential(
             nn.Flatten(),
             nn.Linear(128 * 8 * 8, 512),
             nn.ReLU(inplace=True),
-            nn.Dropout(0.5),  # Dropout for regularization
+            nn.Dropout(0.5),
             nn.Linear(512, num_classes)
         )
 
@@ -74,13 +68,11 @@ class Classifier(nn.Module):
         Returns:
             tensor (b, num_classes) logits
         """
-        # Normalize the input
+
         z = (x - self.input_mean[None, :, None, None]) / self.input_std[None, :, None, None]
-        
-        # Pass through feature extractor
+
         features = self.features(z)
         
-        # Pass through classifier
         logits = self.classifier(features)
 
         return logits

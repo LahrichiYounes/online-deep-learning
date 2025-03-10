@@ -28,30 +28,22 @@ class SuperTuxDataset(Dataset):
                     label_id = LABEL_NAMES.index(label)
 
                     self.data.append((img_path, label_id))
-
+  # I used AI for this
     def get_transform(self, transform_pipeline: str = "default"):
         xform = None
 
         if transform_pipeline == "default":
             xform = transforms.ToTensor()
         elif transform_pipeline == "aug":
-            # Construct a more comprehensive augmentation pipeline
             xform = transforms.Compose([
-                # Random rotation within a small range
                 transforms.RandomRotation(15),
-                # Random horizontal flip
                 transforms.RandomHorizontalFlip(p=0.5),
-                # Color jitter for varying brightness, contrast, saturation
                 transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-                # Random perspective transformation
                 transforms.RandomPerspective(distortion_scale=0.2, p=0.3),
-                # Random crop and resize
                 transforms.RandomResizedCrop(64, scale=(0.8, 1.0), ratio=(0.9, 1.1)),
-                # Convert to tensor (required)
                 transforms.ToTensor(),
             ])
         elif transform_pipeline == "light_aug":
-            # A lighter augmentation pipeline that might be less likely to distort important features
             xform = transforms.Compose([
                 transforms.RandomHorizontalFlip(p=0.5),
                 transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
