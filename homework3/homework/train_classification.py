@@ -7,7 +7,7 @@ from datetime import datetime
 from homework.models import Classifier, save_model 
 from homework.datasets.classification_dataset import load_data 
 
-# I used AI for this and used from HW2
+# I used AI on this file and used from HW2
 def train(
     exp_dir: str = "logs",
     model_name: str = "classifier", 

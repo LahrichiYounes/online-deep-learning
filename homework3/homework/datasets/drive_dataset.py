@@ -3,9 +3,10 @@ from pathlib import Path
 import numpy as np
 from torch.utils.data import ConcatDataset, DataLoader, Dataset
 
-from . import road_transforms
-from .road_utils import Track
+from . import drive_transforms
+from .drive_utils import Track
 
+# I used AI on this file
 
 class RoadDataset(Dataset):
     """
@@ -31,21 +32,20 @@ class RoadDataset(Dataset):
         xform = None
 
         if transform_pipeline == "default":
-            xform = road_transforms.Compose(
+            xform = drive_transforms.Compose(
                 [
-                    road_transforms.ImageLoader(self.episode_path),
-                    road_transforms.DepthLoader(self.episode_path),
-                    road_transforms.TrackProcessor(self.track),
+                    drive_transforms.ImageLoader(self.episode_path),
+                    drive_transforms.DepthLoader(self.episode_path),
+                    drive_transforms.TrackProcessor(self.track),
                 ]
             )
         elif transform_pipeline == "aug":
-        # Add data augmentation for training
-          xform = road_transforms.Compose(
+          xform = drive_transforms.Compose(
               [
-                  road_transforms.ImageLoader(self.episode_path),
-                  road_transforms.DepthLoader(self.episode_path),
-                  road_transforms.TrackProcessor(self.track),
-                  road_transforms.RandomHorizontalFlip(p=0.5),
+                  drive_transforms.ImageLoader(self.episode_path),
+                  drive_transforms.DepthLoader(self.episode_path),
+                  drive_transforms.TrackProcessor(self.track),
+                  drive_transforms.RandomHorizontalFlip(p=0.5),
               ]
           )
 

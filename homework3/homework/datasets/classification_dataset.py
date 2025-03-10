@@ -7,7 +7,7 @@ from torchvision import transforms
 
 LABEL_NAMES = ["background", "kart", "pickup", "nitro", "bomb", "projectile"]
 
-
+# I used AI on this file
 class SuperTuxDataset(Dataset):
     """
     SuperTux dataset for classification
@@ -41,12 +41,6 @@ class SuperTuxDataset(Dataset):
                 transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
                 transforms.RandomPerspective(distortion_scale=0.2, p=0.3),
                 transforms.RandomResizedCrop(64, scale=(0.8, 1.0), ratio=(0.9, 1.1)),
-                transforms.ToTensor(),
-            ])
-        elif transform_pipeline == "light_aug":
-            xform = transforms.Compose([
-                transforms.RandomHorizontalFlip(p=0.5),
-                transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
                 transforms.ToTensor(),
             ])
 

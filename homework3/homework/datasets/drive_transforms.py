@@ -16,7 +16,7 @@ import numpy as np
 from PIL import Image
 from torchvision import transforms as tv_transforms
 
-from .road_utils import Track, homogeneous
+from .drive_utils import Track, homogeneous
 
 
 def project(points, view, proj, h, w):
@@ -149,12 +149,15 @@ class DepthLoader(ImageLoader):
 
         return sample
 
-
+# I used AI on this function
 class RandomHorizontalFlip(tv_transforms.RandomHorizontalFlip):
     def __call__(self, sample: dict):
         if np.random.rand() < self.p:
-            sample["image"] = np.flip(sample["image"], axis=2)
-            sample["track"] = np.flip(sample["track"], axis=1)
+            sample["image"] = np.flip(sample["image"], axis=2).copy()
+            if "track" in sample:
+                sample["track"] = np.flip(sample["track"], axis=1).copy()
+            if "depth" in sample:
+                sample["depth"] = np.flip(sample["depth"], axis=1).copy()
 
         return sample
 

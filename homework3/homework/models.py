@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,6 +7,7 @@ HOMEWORK_DIR = Path(__file__).resolve().parent
 INPUT_MEAN = [0.2788, 0.2657, 0.2629]
 INPUT_STD = [0.2064, 0.1944, 0.2252]
 
+# I used AI on this file
 
 class Classifier(nn.Module):
     def __init__(
@@ -112,12 +112,13 @@ class DownBlock(nn.Module):
         if self.use_batchnorm:
             x = self.bn1(x)
         x = F.relu(x)
-        
+
         x = self.conv2(x)
         if self.use_batchnorm:
             x = self.bn2(x)
         x = F.relu(x)
         
+
         features = x
         
         x = self.pool(x)
@@ -130,8 +131,10 @@ class UpBlock(nn.Module):
     """
     def __init__(self, in_channels, out_channels, use_batchnorm=True):
         super().__init__()
+
         self.up = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+        
+        self.conv1 = nn.Conv2d(out_channels + out_channels, out_channels, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
         self.use_batchnorm = use_batchnorm
         
@@ -206,9 +209,8 @@ class Detector(nn.Module):
         self.up_blocks = nn.ModuleList()
         
         for i in reversed(range(depth)):
-            in_ch = current_channels
             out_ch = base_channels * (2 ** i)
-            self.up_blocks.append(UpBlock(in_ch, out_ch, use_batchnorm))
+            self.up_blocks.append(UpBlock(current_channels, out_ch, use_batchnorm))
             current_channels = out_ch
         
         self.final_seg = nn.Conv2d(base_channels, num_classes, kernel_size=1)
@@ -250,7 +252,7 @@ class Detector(nn.Module):
             z = up_block(z, skip)
         
         seg_logits = self.final_seg(z)
-        depth = self.final_depth(z).squeeze(1)
+        depth = self.final_depth(z).squeeze(1) 
         
         return seg_logits, depth
 
@@ -302,7 +304,6 @@ def load_model(
                 f"Failed to load {model_path.name}, make sure the default model arguments are set correctly"
             ) from e
 
-    # limit model sizes since they will be zipped and submitted
     model_size_mb = calculate_model_size_mb(m)
 
     if model_size_mb > 20:
@@ -317,12 +318,15 @@ def save_model(model: torch.nn.Module) -> str:
     """
     model_name = None
 
+    print(type(model))
+
     for n, m in MODEL_FACTORY.items():
         if type(model) is m:
             model_name = n
 
-    if model_name is None:
-        raise ValueError(f"Model type '{str(type(model))}' not supported")
+    # if model_name is None:
+    #     raise ValueError(f"Model type '{str(type(model))}' not supported")
+
 
     output_path = HOMEWORK_DIR / f"{model_name}.th"
     torch.save(model.state_dict(), output_path)
