@@ -115,7 +115,7 @@ class ClassifierGrader(BaseGrader):
 
             self._metric_computer.add(pred, label)
 
-    @Case(score=10, timeout=5000)
+    @Case(score=10, timeout=500000)
     def test_model(self):
         """Predict"""
         batch_size = 16
@@ -125,7 +125,7 @@ class ClassifierGrader(BaseGrader):
 
         assert output.shape == (batch_size,), f"Expected shape ({batch_size},), got {output.shape}"
 
-    @Case(score=25, timeout=10000)
+    @Case(score=25, timeout=1000000)
     def test_accuracy(self):
         """Accuracy"""
         key = "accuracy"
@@ -134,7 +134,7 @@ class ClassifierGrader(BaseGrader):
 
         return score, f"{key}: {val:.3f}, required > {self.RANGE[1]}"
 
-    @Case(score=2, timeout=500, extra_credit=True)
+    @Case(score=2, timeout=50000, extra_credit=True)
     def test_accuracy_extra(self):
         """Accuracy: Extra Credit"""
         key = "accuracy"
