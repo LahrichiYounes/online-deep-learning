@@ -272,7 +272,7 @@ class Detector(nn.Module):
         logits, raw_depth = self(x)
         pred = logits.argmax(dim=1)
         
-        depth = torch.sigmoid(raw_depth)
+        depth = raw_depth
         
         return pred, depth
 
