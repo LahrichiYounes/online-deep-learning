@@ -15,7 +15,7 @@ from homework.models import MLPPlanner, TransformerPlanner, CNNPlanner, save_mod
 from homework.metrics import longitudinal_error, lateral_error
 from homework.datasets.road_dataset import RoadDataset
 
-def train_planner(
+def train(
     model_name,
     transform_pipeline,
     output_dir="./results",
@@ -330,7 +330,7 @@ def main():
     print(f"Training {args.model} with {args.transform} transform...")
     
     # Train the model
-    train_planner(
+    train(
         model_name=args.model,
         transform_pipeline=args.transform,
         output_dir=args.output_dir,
